@@ -7,7 +7,7 @@ param ()
 
 #region vars
 $maxUInt = 4294967295
-[string[]] $genDrivelist = (([char]'a'..[char]'z').foreach({
+[string[]] $genDrivelist = ([char[]]('A'[0]..'Z'[0])).foreach({
             "${_}:\"
         })) + '*'
 [string[]] $genExtensions = ((& cmd.exe /c assoc).Split('=')).Where({ $_ -like '.*' }).Replace('.', '') + '*'
@@ -16,9 +16,12 @@ $maxUInt = 4294967295
 # Ref https://docs.microsoft.com/en-us/powershell/module/defender/set-mppreference
 # Ref https://learn.microsoft.com/en-us/powershell/module/defender/add-mppreference
 # Useful:
+# https://cloudbrothers.info/guide-to-defender-exclusions/
 # https://github.com/dgoldman-msft/Get-MpPreferences/blob/main/Get-MpPreferences.ps1
 # https://blog.quarkslab.com/guided-tour-inside-windefenders-network-inspection-driver.html
 $paramHash = @{
+    AttackSurfaceReductionOnlyExclusions          = '*'
+    AttackSurfaceReductionRules_Actions           = 'Disabled'
     AllowDatagramProcessingOnWinServer            = $False
     AllowNetworkProtectionDownLevel               = $False
     AllowNetworkProtectionOnWinServer             = $False
@@ -26,7 +29,7 @@ $paramHash = @{
     CloudBlockLevel                               = 1 # 1 == Not Configured
     CloudExtendedTimeout                          = 0 # Need to confirm that 0 in this instance isn't infinite
     DisableArchiveScanning                        = $True
-    DisableBehaviorMonitoring                     = $True
+    DisableBehaviorMonitoring                     = $True # If on retail, this will consistently re-enable itself
     DisableBlockAtFirstSeen                       = $True
     DisableCatchupFullScan                        = $True
     DisableCatchupQuickScan                       = $True
@@ -70,6 +73,7 @@ $paramHash = @{
     MeteredConnectionUpdates                      = $False
     ModerateThreatDefaultAction                   = 'Allow'
     ProxyServer                                   = 'http://localhost:12345'
+    ProxyBypass                                   = $False
     PUAProtection                                 = 'Disabled'
     RealTimeScanDirection                         = 2 # has to be set, 2 is outgoing files only
     RemediationScheduleDay                        = 8 # 8 == Never / Default
@@ -86,7 +90,6 @@ $paramHash = @{
     UnknownThreatDefaultAction                    = 'Allow'
 }
 
-Remove-MpPreference -ProxyBypass -ErrorAction SilentlyContinue -Verbose -Force
 # Try each parameter since they may vary based on OS version
 $paramHash.keys.ForEach({
         $curParam = @{
