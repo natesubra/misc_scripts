@@ -1,3 +1,6 @@
+# Add this to a powershell profile (or source it from your profile)
+# This will hook all powershell execution (by any apps that forget -noprofile and run in your user context)
+# Useful for bypassing some forms of whitelisting and for hooking misconfigured privilege escalation tools
 # Logging path for all profile hooks
 $_logpath = "${ENV:USERPROFILE}\ps.log"
 # Logging path for only privileged hooks
