@@ -4,6 +4,7 @@ param ()
 
 # "Disables" Defender by adding exclusions and turning off advanced bits. Run this under an elevated powershell prompt
 # Defender will be essentially gutted/disabled without messing with any files/underlying services. Windows Security center will still display that AV is working etc.
+# WARNING: This is intended to work on RE/Malware research machines and it's ability to alter MDE configurations will depend on how MDE policy is configured.
 
 #region vars
 $maxUInt = 4294967295
