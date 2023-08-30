@@ -1,3 +1,12 @@
+<#
+.SYNOPSIS
+    A PowerShell based memory scanner, intended to find unencrypted JWTs in memory (O365 etc)
+.NOTES
+    Windows only
+.EXAMPLE
+    .\Search-ProcessMemory -ProcessPID 1234 -SearchString "eyJ0eX"
+#>
+
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $true)]
@@ -7,7 +16,8 @@ param (
 )
 
 # Validate that a process with the given PID exists
-if (-Not (Get-Process -Id $ProcessPID -ErrorAction SilentlyContinue)) {
+$Proc = Get-Process -Id $ProcessPID -ErrorAction SilentlyContinue
+if (-Not $Proc) {
     Write-Host "Process with PID $ProcessPID does not exist."
     return
 }
@@ -51,6 +61,7 @@ $PROCESS_QUERY_INFORMATION = 0x0400
 $MEM_COMMIT = 0x1000
 
 # Open the process
+Write-Host -ForegroundColor Cyan "Opening process $ProcessPID, $($Proc.Name)"
 $processHandle = [Kernel32]::OpenProcess($PROCESS_VM_READ -bor $PROCESS_QUERY_INFORMATION, $false, $ProcessPID)
 if ($processHandle -eq [IntPtr]::Zero) {
     Write-Host "Failed to open process. Check if the PID is correct and if you have necessary permissions."
@@ -77,7 +88,7 @@ try {
         
         if ($res -eq 0) {
             $errorCode = [System.Runtime.InteropServices.Marshal]::GetLastWin32Error()
-            Write-Host -ForegroundColor Cyan "VirtualQueryEx returned 0, stopping memory scan. Last error code: $errorCode"
+            Write-Verbose "VirtualQueryEx returned 0, stopping memory scan. Last error code: $errorCode"
             break
         }
 
@@ -91,7 +102,7 @@ try {
                 foreach ($line in $lines) {
                     if ($line -match [regex]::Escape($SearchString)) {
                         # Add the line to the hash set if it's a new, unique match
-                        $splitline = ($line -split " ")[-1] # Split the line by spaces and take the last part
+                        $splitline = $SearchString + ($line -split "$SearchString")[-1] # Split the line by spaces and take the last part
                         $uniqueLines[$splitline] = $null
                     }
                 }
@@ -103,8 +114,13 @@ try {
     }
 
     # Print all unique lines
-    Write-Host "Unique entries found:"
-    $uniqueLines.Keys | ForEach-Object { Write-Host "`n$_" }
+    if ($uniqueLines.Count -eq 0) {
+        Write-Host "No matches found."
+        return
+    } else {
+        Write-Host "Unique entries found:"
+        $uniqueLines.Keys | ForEach-Object { Write-Host "`n$_`n" }
+    }
 } finally {
     # Close the process handle
     [Kernel32]::CloseHandle($processHandle) | Out-Null
