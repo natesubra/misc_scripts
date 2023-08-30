@@ -7,8 +7,8 @@
     .\Search-ProcessMemory -ProcessPID 1234 -SearchString "eyJ0eX"
     
     Search all processes belonging to the active user:
-    $mypids = $tasklist_output | Where {$_."User Name" -match $ENV:USERNAME } | Select PID
-    foreach ($procpid in $mypids) { .\Search-ProcessMemory.ps1 -ProcessPID $procpid.PID }
+    $myprocs = tasklist /v /fo csv | ConvertFrom-CSV | Where-Object {$_."User Name" -match $ENV:USERNAME }
+    foreach ($proc in $myprocs) { .\Search-ProcessMemory.ps1 -ProcessPID $proc.PID }
 #>
 
 [CmdletBinding()]
