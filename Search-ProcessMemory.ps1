@@ -10,6 +10,8 @@
     To search all processes belonging to the active user:
     $myprocs = tasklist /v /fo csv | ConvertFrom-CSV | Where-Object {$_."User Name" -match $ENV:USERNAME }
     foreach ($proc in $myprocs) { .\Search-ProcessMemory.ps1 -ProcessPID $proc.PID }
+    
+    (credit to [mrd0x](https://mrd0x.com/stealing-tokens-from-office-applications/) for the idea)
 #>
 
 [CmdletBinding()]
