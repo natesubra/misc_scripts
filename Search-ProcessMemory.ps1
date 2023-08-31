@@ -4,9 +4,10 @@
 .NOTES
     Windows only
 .EXAMPLE
+    To search a specific process:
     .\Search-ProcessMemory -ProcessPID 1234 -SearchString "eyJ0eX"
     
-    Search all processes belonging to the active user:
+    To search all processes belonging to the active user:
     $myprocs = tasklist /v /fo csv | ConvertFrom-CSV | Where-Object {$_."User Name" -match $ENV:USERNAME }
     foreach ($proc in $myprocs) { .\Search-ProcessMemory.ps1 -ProcessPID $proc.PID }
 #>
