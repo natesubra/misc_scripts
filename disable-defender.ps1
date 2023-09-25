@@ -10,7 +10,7 @@ param ()
 $maxUInt = 4294967295
 [string[]] $genDrivelist = ([char[]]('A'[0]..'Z'[0])).foreach({
             "${_}:\"
-        })) + '*'
+        }) + '*'
 [string[]] $genExtensions = ((& cmd.exe /c assoc).Split('=')).Where({ $_ -like '.*' }).Replace('.', '') + '*'
 #endregion vars
 
