@@ -4,9 +4,12 @@
 .NOTES
     Windows only
 .EXAMPLE
-    To search a specific process:
-    .\Search-ProcessMemory -ProcessPID 1234 -SearchString "eyJ0eX"
+    # To search a specific process by PID:
+    .\Search-ProcessMemory.ps1 -ProcessPID 1234 -SearchString "eyJ0eX"
     
+    # Search a specific process by name:
+    (Get-Process Outlook).ID | .\Search-ProcessMemory.ps1
+
     To search all processes belonging to the active user:
     $myprocs = tasklist /v /fo csv | ConvertFrom-CSV | Where-Object {$_."User Name" -match $ENV:USERNAME }
     foreach ($proc in $myprocs) { .\Search-ProcessMemory.ps1 -ProcessPID $proc.PID }
@@ -16,7 +19,7 @@
 
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
     [int] $ProcessPID,
     [Parameter()]
     [string] $SearchString = "eyJ0eX"
