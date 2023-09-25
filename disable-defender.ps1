@@ -21,11 +21,11 @@ $maxUInt = [uint32]::MaxValue
 # https://github.com/dgoldman-msft/Get-MpPreferences/blob/main/Get-MpPreferences.ps1
 # https://blog.quarkslab.com/guided-tour-inside-windefenders-network-inspection-driver.html
 $paramHash = @{
-    AttackSurfaceReductionOnlyExclusions          = '*'
-    AttackSurfaceReductionRules_Actions           = 'Disabled'
     AllowDatagramProcessingOnWinServer            = $False
     AllowNetworkProtectionDownLevel               = $False
     AllowNetworkProtectionOnWinServer             = $False
+    AttackSurfaceReductionOnlyExclusions          = '*'
+    AttackSurfaceReductionRules_Actions           = 'Disabled'
     CheckForSignaturesBeforeRunningScan           = $False
     CloudBlockLevel                               = 1 # 1 == Not Configured
     CloudExtendedTimeout                          = 0 # Need to confirm that 0 in this instance isn't infinite
@@ -46,6 +46,7 @@ $paramHash = @{
     DisableIOAVProtection                         = $True
     DisableNetworkProtectionPerfTelemetry         = $True
     DisablePrivacyMode                            = $True
+    DisableQuicParsing                            = $True
     DisableRdpParsing                             = $True
     DisableRealtimeMonitoring                     = $True
     DisableRemovableDriveScanning                 = $True
@@ -73,8 +74,8 @@ $paramHash = @{
     MAPSReporting                                 = 'Disabled'
     MeteredConnectionUpdates                      = $False
     ModerateThreatDefaultAction                   = 'Allow'
-    ProxyServer                                   = 'http://localhost:12345'
     ProxyBypass                                   = $False
+    ProxyServer                                   = 'http://localhost:12345'
     PUAProtection                                 = 'Disabled'
     RealTimeScanDirection                         = 2 # has to be set, 2 is outgoing files only
     RemediationScheduleDay                        = 8 # 8 == Never / Default
