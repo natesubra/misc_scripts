@@ -9,8 +9,8 @@ param ()
 #region vars
 $maxUInt = [uint32]::MaxValue
 [string[]] $genDrivelist = ([char[]]('A'[0]..'Z'[0])).foreach({
-            "${_}:\"
-        }) + '*'
+        "${_}:\"
+    }) + '*'
 [string[]] $genExtensions = ((& cmd.exe /c assoc).Split('=')).Where({ $_ -like '.*' }).Replace('.', '') + '*'
 #endregion vars
 
@@ -24,6 +24,7 @@ $paramHash = @{
     AllowDatagramProcessingOnWinServer            = $False
     AllowNetworkProtectionDownLevel               = $False
     AllowNetworkProtectionOnWinServer             = $False
+    ApplyDisableNetworkScanningtoIOAV             = $True
     AttackSurfaceReductionOnlyExclusions          = '*'
     AttackSurfaceReductionRules_Actions           = 'Disabled'
     CheckForSignaturesBeforeRunningScan           = $False
@@ -53,10 +54,10 @@ $paramHash = @{
     DisableRestorePoint                           = $True
     DisableScanningMappedNetworkDrivesForFullScan = $True
     DisableScanningNetworkFiles                   = $True
-    DisableScriptScanning                         = $True
+    DisableScriptScanning                         = $True # If on retail, this will consistently re-enable itself
     DisableSmtpParsing                            = $True
     DisableSshParsing                             = $True
-    DisableTamperProtection                       = $True
+    DisableTamperProtection                       = $True # If on retail, this will consistently re-enable itself
     DisableTDTFeature                             = $True
     DisableTlsParsing                             = $True
     EnableControlledFolderAccess                  = 'Disabled'
@@ -97,6 +98,6 @@ $paramHash.keys.ForEach({
         $curParam = @{
             "$_" = $paramHash["$_"]
         }
-        Write-Verbose "Setting $_"
+        Write-Host "Setting $_"
         Set-MpPreference @curParam -ErrorAction Continue -Verbose -Force
     })
