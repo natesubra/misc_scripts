@@ -20,7 +20,7 @@ $maxUInt = [uint32]::MaxValue
 # https://cloudbrothers.info/guide-to-defender-exclusions/
 # https://github.com/dgoldman-msft/Get-MpPreferences/blob/main/Get-MpPreferences.ps1
 # https://blog.quarkslab.com/guided-tour-inside-windefenders-network-inspection-driver.html
-$paramHash = @{
+$paramHash = [ordered] @{
     AllowDatagramProcessingOnWinServer            = $False
     AllowNetworkProtectionDownLevel               = $False
     AllowNetworkProtectionOnWinServer             = $False
@@ -57,7 +57,7 @@ $paramHash = @{
     DisableScriptScanning                         = $True # If on retail, this will consistently re-enable itself
     DisableSmtpParsing                            = $True
     DisableSshParsing                             = $True
-    DisableTamperProtection                       = $True # If on retail, this will consistently re-enable itself
+    DisableTamperProtection                       = $True # If on retail, this will consistently re-enable itself and sometimes fail to set correctly: Error 0x%1!x!
     DisableTDTFeature                             = $True
     DisableTlsParsing                             = $True
     EnableControlledFolderAccess                  = 'Disabled'
@@ -98,6 +98,6 @@ $paramHash.keys.ForEach({
         $curParam = @{
             "$_" = $paramHash["$_"]
         }
-        Write-Host "Setting $_"
-        Set-MpPreference @curParam -ErrorAction Continue -Verbose -Force
+        Write-Host "Setting $_ to $($paramHash["$_"])"
+        Set-MpPreference @curParam -ErrorAction Continue -Force
     })
