@@ -7,7 +7,7 @@ param ()
 # WARNING: This is intended to work on RE/Malware research machines and it's ability to alter MDE configurations will depend on how MDE policy is configured.
 
 #region vars
-$maxUInt = 4294967295
+$maxUInt = [uint32]::MaxValue
 [string[]] $genDrivelist = ([char[]]('A'[0]..'Z'[0])).foreach({
             "${_}:\"
         }) + '*'
