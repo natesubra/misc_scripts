@@ -14,19 +14,39 @@ param ()
 $maxUInt = [uint32]::MaxValue
 
 # Generate a list of all drive letters
+# Per MS Ref 3, wildcards are only allowed at the end of a path
 [string[]] $genDrivelist = ([char[]]('A'[0]..'Z'[0])).foreach({
-        "${_}:\"
-    }) + '*'
+        "${_}:\*"
+    }) + '\\*' + '?:\*'
 
 # Get all file associations
-[string[]] $genExtensions = ((& cmd.exe /c assoc).Split('=')).Where({ $_ -like '.*' }).Replace('.', '') + '*'
+[string[]] $genExtensions = ((& cmd.exe /c assoc).Split('=')).Where({ $_ -like '.*' }) + '.*'
 
-# Ref https://docs.microsoft.com/en-us/powershell/module/defender/set-mppreference
-# Ref https://learn.microsoft.com/en-us/powershell/module/defender/add-mppreference
-# Useful:
+# Ref 1 https://docs.microsoft.com/en-us/powershell/module/defender/set-mppreference
+# Ref 2 https://learn.microsoft.com/en-us/powershell/module/defender/add-mppreference
+# Ref 3 https://learn.microsoft.com/en-us/microsoft-365/security/defender-endpoint/configure-process-opened-file-exclusions-microsoft-defender-antivirus?view=o365-worldwide
+# Ref 4 https://learn.microsoft.com/en-us/previous-versions/windows/desktop/defender/msft-mppreference
+# Ref 5 https://learn.microsoft.com/en-us/microsoft-365/security/defender-endpoint/configure-extension-file-exclusions-microsoft-defender-antivirus?view=o365-worldwide#use-wildcards-in-the-file-name-and-folder-path-or-extension-exclusion-lists
+# Useful/Credit:
+# https://powershell.one/wmi/root/microsoft/windows/defender/msft_mppreference
 # https://cloudbrothers.info/guide-to-defender-exclusions/
 # https://github.com/dgoldman-msft/Get-MpPreferences/blob/main/Get-MpPreferences.ps1
 # https://blog.quarkslab.com/guided-tour-inside-windefenders-network-inspection-driver.html
+
+# To get the value types for each parameter, run the following:
+# `Get-MpPreference | get-member`
+# OR `Get-CimInstance -ClassName MSFT_MpPreference -Namespace root/microsoft/windows/defender -Property * | get-member`
+# `Get-Help Set-MpPreference` also contains good information but is lacking on many of the types
+
+# DefaultActions Map
+# 1 == Clean
+# 2 == Quarantine
+# 3 == Remove
+# 4 == Allow
+# 8 == User Defined
+# 9 == NoAction
+# 10 == Block
+
 $paramHash = [ordered] @{
     AllowDatagramProcessingOnWinServer            = $False
     AllowNetworkProtectionDownLevel               = $False
@@ -75,13 +95,13 @@ $paramHash = [ordered] @{
     ExclusionExtension                            = $genExtensions
     ExclusionIPAddress                            = '0.0.0.0/0', '*', '*.*.*.*' # Not clear what data types go here
     ExclusionPath                                 = $genDrivelist
-    ExclusionProcess                              = '*'
+    ExclusionProcess                              = $genDrivelist
     ForceUseProxyOnly                             = $True
-    HighThreatDefaultAction                       = 'Allow' # Allow == 6
-    LowThreatDefaultAction                        = 'Allow' # Allow == 6
+    HighThreatDefaultAction                       = 'Allow'
+    LowThreatDefaultAction                        = 'Allow'
     MAPSReporting                                 = 'Disabled'
     MeteredConnectionUpdates                      = $False
-    ModerateThreatDefaultAction                   = 'Allow' # Allow == 6
+    ModerateThreatDefaultAction                   = 'Allow'
     ProxyBypass                                   = $False
     ProxyServer                                   = 'http://localhost:12345'
     PUAProtection                                 = 'Disabled'
@@ -89,7 +109,7 @@ $paramHash = [ordered] @{
     RemediationScheduleDay                        = 8 # 8 == Never / Default
     ScanAvgCPULoadFactor                          = 5 # 5-100
     ScanScheduleDay                               = 8 # 8 == Never / Default
-    SevereThreatDefaultAction                     = 'Allow' # Allow == 6
+    SevereThreatDefaultAction                     = 'Allow'
     SignatureBlobUpdateInterval                   = $maxUInt
     SignatureDefinitionUpdateFileSharesSources    = '\\localhost\C$'
     SignatureDisableUpdateOnStartupWithoutEngine  = $True
@@ -97,7 +117,7 @@ $paramHash = [ordered] @{
     SignatureScheduleDay                          = 8 # 8 == Never
     SignatureUpdateCatchupInterval                = $maxUInt
     SubmitSamplesConsent                          = 'NeverSend'
-    UnknownThreatDefaultAction                    = 'Allow' # Allow == 6
+    UnknownThreatDefaultAction                    = 'Allow'
 }
 
 # Try each parameter since they may vary based on OS version
