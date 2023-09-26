@@ -22,7 +22,7 @@ $maxUInt = [uint32]::MaxValue
 # Generate list of file associations
 [string[]] $SystemExtensions = Get-ChildItem 'HKLM:\SOFTWARE\Classes\' | Where-Object { $_.PSChildName -match '^\.\w+' } | ForEach-Object { $_.PSChildName }
 [string[]] $UserExtensions = Get-ChildItem 'HKCU:\SOFTWARE\Classes\' | Where-Object { $_.PSChildName -match '^\.\w+' } | ForEach-Object { $_.PSChildName }
-[string[]] $genExtensions = ($SystemExtensions + $UserExtensions + $AssocExtensions | Sort-Object -Unique) + '.*'
+[string[]] $genExtensions = $SystemExtensions + $UserExtensions + '.*' | Sort-Object -Unique
 #[string[]] $genExtensions = ((& cmd.exe /c assoc).Split('=')).Where({ $_ -like '.*' }) + '.*'
 
 # Ref 1 https://docs.microsoft.com/en-us/powershell/module/defender/set-mppreference
