@@ -89,7 +89,7 @@ $paramHash = [ordered] @{
     RemediationScheduleDay                        = 8 # 8 == Never / Default
     ScanAvgCPULoadFactor                          = 5 # 5-100
     ScanScheduleDay                               = 8 # 8 == Never / Default
-    SevereThreatDefaultAction                     = 2 # 2 == Ignore
+    SevereThreatDefaultAction                     = 'Allow' # Allow == 6
     SignatureBlobUpdateInterval                   = $maxUInt
     SignatureDefinitionUpdateFileSharesSources    = '\\localhost\C$'
     SignatureDisableUpdateOnStartupWithoutEngine  = $True
